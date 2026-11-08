@@ -652,6 +652,34 @@ input[type=range].mc__slider::-moz-range-thumb{
 }
 @media(prefers-reduced-motion:reduce){.mc__out,.mc__seg,.mc__fairmark{transition:none}}
 
+/* Compact Decoder: the whole box about 12% smaller, type and spacing together,
+   so it reads as a tool beside the headline rather than a second hero. */
+.hero__tool{max-width:560px}
+#decoder .calc__title{font-size:clamp(18px,3.8vw,34px);margin-bottom:16px}
+#decoder .mc__out{padding:20px 16px 18px;margin-bottom:18px}
+#decoder .mc__out .lab{margin-bottom:7px}
+#decoder .mc__big{font-size:clamp(36px,7.2vw,52px)}
+#decoder .mc__profit{margin-top:9px;font-size:13px}
+#decoder .mc__track{height:30px;margin-top:26px}
+#decoder .mc__key{margin-top:13px}
+#decoder .mc__key span{font-size:10.5px}
+#decoder .mc__note{margin-top:16px;font-size:13px}
+#decoder .mc__cost{padding:12px 14px;margin-top:14px}
+#decoder .mc__cost span{font-size:12.5px}
+#decoder .mc__cost span i{font-size:11px}
+#decoder .mc__cost b{font-size:16px}
+#decoder .pg__grid{gap:12px;margin-top:20px}
+#decoder .f{gap:5px}
+#decoder .f label{font-size:10px}
+#decoder .more > summary span{font-size:12.5px}
+#decoder .respond{margin-top:20px}
+#decoder .btn--big{padding:15px 34px;font-size:15px}
+@media(min-width:560px){
+  #decoder .f input[type=text],
+  #decoder .f select{font-size:14px;padding:10px 12px}
+  #decoder .f select{padding-right:34px;background-position:right 12px center}
+}
+
 /* ============================================================ DARK SURFACES */
 .sec--ink{background:var(--ink);color:#A7B2C1;position:relative;overflow:hidden}
 .sec--ink h2,.sec--ink h3{color:#fff}
