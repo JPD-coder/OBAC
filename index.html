@@ -36,8 +36,10 @@
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-/* the nav is sticky at 64px — anchor targets have to clear it */
-section[id],header[id],div[id="decoder"]{scroll-margin-top:78px}
+/* the nav is sticky (65px on desktop, about 83px on a phone where the links
+   sit on their own row) — anchor targets clear it with room to breathe */
+section[id],header[id],div[id="decoder"]{scroll-margin-top:88px}
+@media(max-width:759px){section[id],header[id],div[id="decoder"]{scroll-margin-top:108px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{
   margin:0;background:var(--paper);color:var(--steel);
