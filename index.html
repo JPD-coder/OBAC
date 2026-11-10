@@ -4409,7 +4409,7 @@ function renderCompare(r, amt){
     '<div class="qsum__r"><span>− Ours</span><b>' + fmt(fair) + '</b><em>' + pct(mFair) + ' margin</em></div>' +
     '<div class="qsum__r qsum__r--total"><span>' + (diff > 0 ? 'Overpaying' : 'Under our price') + '</span><b>' +
       fmt(Math.abs(diff)) + '</b><em class="qsum__pct">' + (diff > 0 ? '+' : '−') +
-      Math.round(Math.abs(diff) / fair * 100) + '%</em></div>' +
+      Math.round(Math.abs(diff) / fair * 100) + '% ' + (diff > 0 ? 'over' : 'under') + '</em></div>' +
     '<p class="qsum__cost">Contractor’s cost: ' + fmt(cost) + '</p>';
 }
 
