@@ -565,7 +565,13 @@ a{color:var(--blue)}
 .qc--good .qc__cell b{color:#4FD6A4}
 .qc--under .qc__cell b{color:var(--yellow)}
 .qc__say{margin:16px 0 0;font-size:14.5px;line-height:1.65;color:#93A0B0}
-.qtotal{margin:16px 0 0;max-width:280px}
+.qtotal{margin:16px 0 0;max-width:320px}
+.qtotal[hidden],.qpick[hidden],.qread[hidden]{display:none}
+.qread{margin:14px 0 0;font-size:14px;color:#A7B2C1}
+.qpick{margin:14px 0 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.qpick p{margin:0 0 4px;width:100%;font-size:14px;color:#A7B2C1}
+.qpick button{border:1px solid var(--yellow);background:transparent;color:var(--yellow);border-radius:999px;padding:8px 14px;font:600 14px var(--mono,monospace);cursor:pointer}
+.qpick button:hover{background:rgba(245,197,66,.12)}
 .qtotal input.needs{border-color:var(--yellow);box-shadow:0 0 0 3px rgba(245,197,66,.18)}
 .qneed{margin:14px 0 0;font-size:14px;line-height:1.55;color:var(--yellow);display:none}
 .qneed.on{display:block}
@@ -1221,7 +1227,9 @@ input[type=range].mc__slider::-moz-range-thumb{
         <input id="dropInput" type="file" accept="image/*" multiple class="sr">
         <div class="thumbs" data-thumbs></div>
 
-        <div class="f qtotal"><label for="qAmount">Quote total ($)</label>
+        <p class="qread" id="qRead" hidden></p>
+        <div class="qpick" id="qPick" hidden></div>
+        <div class="f qtotal" id="qAmountWrap" hidden><label for="qAmount">We couldn't read the total. Type it here</label>
           <input id="qAmount" type="text" inputmode="numeric" placeholder="e.g. 12,500" autocomplete="off"></div>
 
         <p class="qneed" id="qNeed"></p>
@@ -3878,6 +3886,8 @@ function renderQuoteDoc(){
 wireDrop('qdrop','qdropInput', function(list){
   [].slice.call(list || []).forEach(function(f){ QUOTEDOC.push(f); });
   renderQuoteDoc();
+  var aw = el('qAmountWrap'); if (aw) { aw.hidden = true; el('qAmount').value = ''; }
+  var pk = el('qPick'); if (pk) pk.hidden = true;
   if (QUOTEDOC.length){
     el('qdrop').classList.remove('needs');
     var w = el('qNeed'); if (w) w.className = 'qneed';
@@ -4174,42 +4184,163 @@ var SCAN = null;
    prices from that and nothing else. */
 window.setQuoteScan = function(o){ SCAN = o || null; };
 
+/* ---------- reading the quote ----------
+   Done in the visitor's browser, nothing is uploaded anywhere: a PDF's text
+   comes straight out with pdf.js; a photo, or a scanned PDF page, goes
+   through Tesseract OCR. Both libraries load only when a quote is checked. */
+var QREAD = { key: null, text: '' };
+function loadScript(src){
+  return new Promise(function(ok, no){
+    if (document.querySelector('script[src="' + src + '"]')) return ok();
+    var t = document.createElement('script'); t.src = src; t.onload = ok;
+    t.onerror = function(){ no(new Error('load ' + src)); }; document.head.appendChild(t);
+  });
+}
+var PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+var TESS  = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/';
+var OCR_WORKER = null;
+function ocrWorker(){
+  if (OCR_WORKER) return OCR_WORKER;
+  OCR_WORKER = loadScript(TESS + 'tesseract.min.js').then(function(){
+    return Tesseract.createWorker('eng', 1, {
+      workerPath: TESS + 'worker.min.js',
+      corePath:   'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1',
+      langPath:   'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int'
+    });
+  });
+  OCR_WORKER.catch(function(){ OCR_WORKER = null; });
+  return OCR_WORKER;
+}
+function ocr(img){ return ocrWorker().then(function(w){ return w.recognize(img); }).then(function(r){ return r.data.text || ''; }); }
+function pdfText(file){
+  return loadScript(PDFJS + 'pdf.min.js').then(function(){
+    pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js';
+    return file.arrayBuffer();
+  }).then(function(buf){ return pdfjsLib.getDocument({ data: buf }).promise; })
+  .then(function(doc){
+    var pages = [], n = Math.min(doc.numPages, 6);
+    for (var i = 1; i <= n; i++) pages.push(i);
+    return pages.reduce(function(p, i){
+      return p.then(function(acc){
+        return doc.getPage(i).then(function(pg){
+          return pg.getTextContent().then(function(tc){
+            // rebuild lines from the text items' vertical positions
+            var rows = {}, out;
+            tc.items.forEach(function(it){ var y = Math.round(it.transform[5]);
+              (rows[y] = rows[y] || []).push(it); });
+            out = Object.keys(rows).sort(function(a, b){ return b - a; }).map(function(y){
+              return rows[y].sort(function(a, b){ return a.transform[4] - b.transform[4]; })
+                            .map(function(it){ return it.str; }).join(' ');
+            }).join('\n');
+            if (out.replace(/\s/g, '').length > 40) return acc + '\n' + out;
+            // a scanned page has no text layer: render it and OCR the picture
+            var vp = pg.getViewport({ scale: 2 }), cv = document.createElement('canvas');
+            cv.width = vp.width; cv.height = vp.height;
+            return pg.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise
+              .then(function(){ return ocr(cv); }).then(function(t){ return acc + '\n' + t; });
+          });
+        });
+      });
+    }, Promise.resolve(''));
+  });
+}
+function readQuote(files){
+  return files.reduce(function(p, f){
+    return p.then(function(acc){
+      var isPdf = /pdf/i.test(f.type) || /\.pdf$/i.test(f.name);
+      return (isPdf ? pdfText(f) : ocr(f)).then(function(t){ return acc + '\n' + t; });
+    });
+  }, Promise.resolve(''));
+}
+/* The quote's price. Lines that name a total win; deposits, monthly
+   payments, rebates and the like never count. Returns every distinct
+   candidate, best first, so a quote with several options can be asked about. */
+function quoteTotals(text){
+  var MONEY = /\$?\s?(\d{1,3}(?:[,\s]\d{3})+|\d{4,6})(?:\.\d{2})?(?!\d)/g;
+  // never the price: what is paid now, by the month, or taken off
+  var bad = /deposit|down\s*pay|due\s*(today|now|at signing)|per\s*month|\/\s*mo|monthly|financ|apr\b|rebate|savings|save\b|discount|credit|incentive/i;
+  // numbers that are something else, unless the line names a total
+  var soft = /tax\b|sq\.?\s*ft|btu|model|serial|phone|license|lic\b|zip|warrant|years?\b/i;
+  var good = [[/grand\s*total|total\s*(investment|price|cost|contract|project|amount|due)|contract\s*(price|amount|total)|investment/i, 3],
+              [/\btotal\b/i, 2], [/price|amount|balance|cost/i, 1]];
+  var found = [];
+  text.split(/\n+/).forEach(function(line){
+    if (bad.test(line)) return;
+    if (soft.test(line) && !/total|price|investment/i.test(line)) return;
+    var score = 0; good.forEach(function(g){ if (!score && g[0].test(line)) score = g[1]; });
+    var m; MONEY.lastIndex = 0;
+    while ((m = MONEY.exec(line))){
+      var v = parseFloat(m[1].replace(/[,\s]/g, ''));
+      var hasDollar = m[0].indexOf('$') > -1;
+      if (v < 1500 || v > 100000) continue;
+      if (!hasDollar && !/,/.test(m[1]) && !score) continue;   // bare numbers only on a total line
+      found.push({ v: v, score: score + (hasDollar ? 0.5 : 0) });
+    }
+  });
+  if (!found.length) return [];
+  var top = Math.max.apply(null, found.map(function(f){ return f.score; }));
+  var best = found.filter(function(f){ return f.score === top; }).map(function(f){ return f.v; });
+  best = best.filter(function(v, i){ return best.indexOf(v) === i; });
+  // with no total line at all, the largest dollar figure is the price
+  if (top < 1) best = [Math.max.apply(null, best)];
+  return best.sort(function(a, b){ return b - a; }).slice(0, 4);
+}
+
+function showQuoteResult(amt){
+  var job = window.DECODER_JOB();
+  var r = E.estimate(job, { amount: amt });
+  renderCompare(r, amt);
+  el('qCompare').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
 el('qRun').addEventListener('click', function(){
-  var w = el('qNeed');
+  var w = el('qNeed'), st = el('qRead'), pick = el('qPick'), aw = el('qAmountWrap');
   function need(msg, target){
     clearQuoteResults(true);
     w.className = 'qneed on'; w.textContent = msg;
     if (target) target.classList.add('needs');
     (target || w).scrollIntoView({ behavior:'smooth', block:'center' });
-    if (target && target.focus) target.focus({ preventScroll:true });
   }
   el('qdrop').classList.remove('needs'); el('qAmount').classList.remove('needs');
-  w.className = 'qneed';
-  var amt = parseFloat(String(val('qAmount')).replace(/[^0-9.]/g, '')) || null;
-  var job;
-  if (SCAN) {
-    // a machine-read quote, when a reader is wired in, describes its own job
-    var scan = SCAN;
-    job = { zip: scan.zip || null, scope: scan.scope || null, brand: scan.brand || null,
-            systemTier: scan.systemTier || null, tons: scan.tons || null,
-            orientation: scan.orientation || null, indoorLocation: scan.indoorLocation || null,
-            condenserLocation: scan.condenserLocation || null,
-            craneRequired: scan.condenserLocation === 'roof' };
-    amt = amt || scan.amount || null;
-  } else {
-    // otherwise the quote is checked against the system described in the Decoder
-    if (el('pgRespond').disabled) {
-      need('Fill in the Decoder above first, so we know which system the quote is for.');
-      el('decoder').scrollIntoView({ behavior:'smooth', block:'start' });
+  w.className = 'qneed'; pick.hidden = true;
+  if (!QUOTEDOC.length) { need('Upload your quote first.', el('qdrop')); return; }
+  // the quote is compared against the system described in the Decoder
+  if (el('pgRespond').disabled) {
+    need('Fill in the Decoder above first, so we know which system the quote is for.');
+    el('decoder').scrollIntoView({ behavior:'smooth', block:'start' });
+    return;
+  }
+  // a total the visitor typed after a failed read
+  var typed = parseFloat(String(val('qAmount')).replace(/[^0-9.]/g, ''));
+  if (!aw.hidden && typed >= 500) { showQuoteResult(typed); return; }
+
+  var key = QUOTEDOC.map(function(f){ return f.name + f.size + f.lastModified; }).join('|');
+  var btn = this; btn.disabled = true;
+  st.hidden = false; st.textContent = 'Reading your quote… this can take a few seconds.';
+  clearQuoteResults(true);
+  (QREAD.key === key ? Promise.resolve(QREAD.text) : readQuote(QUOTEDOC))
+  .then(function(text){
+    QREAD = { key: key, text: text };
+    var t = quoteTotals(text);
+    st.hidden = true;
+    if (t.length === 1) { aw.hidden = true; showQuoteResult(t[0]); return; }
+    if (t.length > 1) {
+      pick.innerHTML = '<p>Your quote shows more than one price. Which one are you comparing?</p>' +
+        t.map(function(v){ return '<button type="button" data-v="' + v + '">' + fmt(v) + '</button>'; }).join('');
+      pick.hidden = false;
+      [].forEach.call(pick.querySelectorAll('button'), function(b){
+        b.addEventListener('click', function(){ pick.hidden = true; showQuoteResult(+b.dataset.v); });
+      });
       return;
     }
-    job = window.DECODER_JOB();
-  }
-  if (!amt || amt < 500) { need('Enter the total price on your quote.', el('qAmount')); return; }
-  var r = E.estimate(job, { amount: amt });
-  renderCompare(r, amt);
-  render(r, job, 'resSlotA');
-  el('qCompare').scrollIntoView({ behavior:'smooth', block:'start' });
+    aw.hidden = false;
+    need('We couldn’t find the total on that quote. Type it below and press Check my Quote again.', el('qAmount'));
+  })
+  .catch(function(){
+    st.hidden = true; aw.hidden = false;
+    need('We couldn’t read that file. Type the quote total below and press Check my Quote again.', el('qAmount'));
+  })
+  .then(function(){ btn.disabled = false; });
 });
 
 /* ---------- clear the results when the quote is removed ---------- */
