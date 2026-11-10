@@ -4311,10 +4311,17 @@ function quoteJob(text){
   else if (/garage/i.test(t))  { job.orientation = 'horizontal'; job.indoorLocation = 'garage'; said.push('garage'); }
   else if (/closet/i.test(t))  { job.orientation = /horizontal/i.test(t) ? 'horizontal' : 'vertical'; job.indoorLocation = 'closet'; said.push('closet'); }
   if (/\broof(top)?\b/i.test(t)) { job.condenserLocation = 'roof'; job.craneRequired = true; said.push('roof'); }
-  // zip: an address's state + zip, or one labelled as a zip
-  if ((m = t.match(/\b[A-Z]{2}\.?,?\s+(\d{5})(?:-\d{4})?\b/) || t.match(/zip(?:\s*code)?\W{0,3}(\d{5})\b/i))) {
-    job.zip = m[1]; said.push(m[1]);
-  }
+  // zip: the job's, not the contractor's. A zip that follows the customer
+  // or job-site address wins; otherwise one labelled as a zip; otherwise,
+  // since the contractor's own address heads the page, the last one given.
+  var ZIP = /\b[A-Z]{2}\.?,?\s+(\d{5})(?:-\d{4})?\b/g, zips = [];
+  while ((m = ZIP.exec(t))) zips.push({ z: m[1], i: m.index });
+  var cust = t.search(/prepared\s*for|customer|homeowner|client|job\s*(site|address|location)|service\s*address|install(ation)?\s*address|property|ship\s*to|bill\s*to/i);
+  var pickZ = null;
+  if (cust > -1) zips.forEach(function(x){ if (!pickZ && x.i > cust) pickZ = x.z; });
+  if (!pickZ && (m = t.match(/zip(?:\s*code)?\W{0,3}(\d{5})\b/i))) pickZ = m[1];
+  if (!pickZ && zips.length) pickZ = zips[zips.length - 1].z;
+  if (pickZ) { job.zip = pickZ; said.push(pickZ); }
   job.survey = {};
   return { job: job, said: said };
 }
