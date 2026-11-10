@@ -942,6 +942,17 @@ input[type=range].mc__slider::-moz-range-thumb{
 .pbout.warn{display:block;background:var(--yellow-pale);border:1px solid #D9A81C;color:#7A5C05}
 .pbout.bad{display:block;background:var(--red-pale);border:1px solid var(--red);color:#932720}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* ============================================================ REDESIGN: flow + How it Works */
+.statement__eyebrow{display:block;margin:0 0 14px;color:var(--yellow)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+@media(min-width:660px){.steps{grid-template-columns:1fr 1fr;gap:14px}}
+.step4{background:var(--ink-2);border:1px solid rgba(255,255,255,.11);border-radius:14px;padding:20px 20px 18px}
+.step4__n{display:inline-flex;width:34px;height:34px;border-radius:999px;align-items:center;justify-content:center;
+  background:var(--yellow);color:var(--ink);font:800 15px/1 var(--display)}
+.step4 h3{margin:14px 0 6px;font-size:18px;color:#fff}
+.step4 p{margin:0;font-size:15px;line-height:1.55;color:#93A0B0}
+#works{padding-bottom:40px}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -966,10 +977,10 @@ input[type=range].mc__slider::-moz-range-thumb{
       <span class="nav__word">Open&nbsp;Book<i>&nbsp;AC</i><sup>&trade;</sup></span>
     </a>
     <div class="nav__links">
-      <a href="#decoder">Decoder</a>
-      <a href="#check">Check Quote</a>
-      <a href="#dispatch">Find Contractor</a>
-      <a href="#how">Proof</a>
+      <a href="#decoder">Check a Price</a>
+      <a href="#check">Check a Quote</a>
+      <a href="#works">How it Works</a>
+      <a href="#how">Why Trust Us</a>
     </div>
   </div>
 </nav>
@@ -980,6 +991,7 @@ input[type=range].mc__slider::-moz-range-thumb{
   <div class="wrap">
 
     <div class="statement">
+      <span class="lab statement__eyebrow">Price check</span>
       <h1>Welcome to Open&nbsp;Book&nbsp;AC<sup>&trade;</sup></h1>
       <div class="statement__close">
         <p>For decades, HVAC pricing has been a closed book. <b>We're opening it.</b></p>
@@ -1173,11 +1185,12 @@ input[type=range].mc__slider::-moz-range-thumb{
 <section class="sec sec--ink" id="check">
   <div class="wrap" style="max-width:800px">
     <div class="sec__head">
-      <span class="lab">01 — Check My Quote</span>
+      <span class="lab">Already have a quote?</span>
       <h2 class="sechead">Upload your quote.</h2>
-      <p>We read the system and equipment details off the
-         proposal, analyze your photos, then show you what the job costs and your
-         <b class="accent">Open Book AC Decoder Price</b>.</p>
+      <p>Start by responding to your contractor with your
+         <b class="accent">Open Book AC Decoder Price</b>. If they won't move, upload the quote:
+         we read the system and equipment details off the proposal, analyze your photos, then
+         show you what the job costs and exactly where the quote is high.</p>
     </div>
 
     <div class="card">
@@ -1221,7 +1234,7 @@ input[type=range].mc__slider::-moz-range-thumb{
 <section class="sec sec--ink" id="dispatch">
   <div class="wrap" style="max-width:800px">
     <div class="sec__head">
-      <span class="lab">02 — Find A Contractor</span>
+      <span class="lab">Contractor won't budge?</span>
       <h2 class="sechead sechead--one">They won't budge? Find one who will.</h2>
       <p>We have your system specs and photos, now all we need
          is your info below. We'll connect your project with a pre-qualified contractor who has agreed with our
@@ -1264,6 +1277,26 @@ input[type=range].mc__slider::-moz-range-thumb{
         <p id="dMsg" style="margin:14px 0 0;font-size:15px;display:none;text-align:center"></p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ================================================ HOW IT WORKS -->
+<section class="sec sec--ink" id="works">
+  <div class="wrap" style="max-width:800px">
+    <div class="sec__head">
+      <span class="lab">How it works</span>
+      <h2 class="sechead">A fair price and a vetted contractor, without the in-home sales pitch.</h2>
+    </div>
+    <ol class="steps">
+      <li class="step4"><span class="step4__n">1</span><h3>Get your Decoder Price</h3>
+        <p>Pick your system, size and zip. See what the job really costs and what a fair price is.</p></li>
+      <li class="step4"><span class="step4__n">2</span><h3>Add your photos</h3>
+        <p>Snap the existing equipment and install area so your price reflects your home, not a guess.</p></li>
+      <li class="step4"><span class="step4__n">3</span><h3>Place a good-faith deposit</h3>
+        <p>25% to meet a contractor at your price. Fully refundable if we don't pair you within 24 hours.</p></li>
+      <li class="step4"><span class="step4__n">4</span><h3>Meet your contractor</h3>
+        <p>A licensed, insured contractor accepts your Decoder Price. No haggling, no sales visit.</p></li>
+    </ol>
   </div>
 </section>
 
