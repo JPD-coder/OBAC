@@ -951,7 +951,8 @@ input[type=range].mc__slider::-moz-range-thumb{
   background:var(--yellow);color:var(--ink);font:800 15px/1 var(--display)}
 .step4 h3{margin:14px 0 6px;font-size:18px;color:#fff}
 .step4 p{margin:0;font-size:15px;line-height:1.55;color:#93A0B0}
-#works{padding-bottom:40px}
+#works{margin:0 0 22px;scroll-margin-top:88px}
+@media(max-width:759px){#works{scroll-margin-top:108px}}
 /* five menu buttons on a phone: one compact row that swipes sideways if a
    narrow screen can't fit them all, so the bar stays 83px tall and the
    section links still land where they were tuned to */
@@ -1242,13 +1243,24 @@ input[type=range].mc__slider::-moz-range-thumb{
 <section class="sec sec--ink" id="dispatch">
   <div class="wrap" style="max-width:800px">
     <div class="sec__head">
-      <span class="lab">Contractor won't budge?</span>
-      <h2 class="sechead sechead--one">They won't budge? Find one who will.</h2>
+      <span class="lab">How finding a contractor works</span>
+      <h2 class="sechead">Contractor won't budge? Find one who will.</h2>
       <p>We have your system specs and photos, now all we need
          is your info below. We'll connect your project with a pre-qualified contractor who has agreed with our
          <b class="accent">Open Book AC Decoder Price</b> — skipping the traditional in-home sales
          visit, sales pitch, and price negotiations.</p>
     </div>
+
+    <ol class="steps" id="works">
+      <li class="step4"><span class="step4__n">1</span><h3>Get your Decoder Price</h3>
+        <p>Pick your system, size and zip. See what the job really costs and what a fair price is.</p></li>
+      <li class="step4"><span class="step4__n">2</span><h3>Add your photos</h3>
+        <p>Snap the existing equipment and install area so your price reflects your home, not a guess.</p></li>
+      <li class="step4"><span class="step4__n">3</span><h3>Place a good-faith deposit</h3>
+        <p>25% to meet a contractor at your price. Fully refundable if we don't pair you within 24 hours.</p></li>
+      <li class="step4"><span class="step4__n">4</span><h3>Meet your contractor</h3>
+        <p>A licensed, insured contractor accepts your Decoder Price. No haggling, no sales visit.</p></li>
+    </ol>
 
     <ul class="pstrip">
       <li><b>Not a lead generation site.</b> Your information is never sold to contractors.</li>
@@ -1285,26 +1297,6 @@ input[type=range].mc__slider::-moz-range-thumb{
         <p id="dMsg" style="margin:14px 0 0;font-size:15px;display:none;text-align:center"></p>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ================================================ HOW IT WORKS -->
-<section class="sec sec--ink" id="works">
-  <div class="wrap" style="max-width:800px">
-    <div class="sec__head">
-      <span class="lab">How it works</span>
-      <h2 class="sechead">A fair price and a vetted contractor, without the in-home sales pitch.</h2>
-    </div>
-    <ol class="steps">
-      <li class="step4"><span class="step4__n">1</span><h3>Get your Decoder Price</h3>
-        <p>Pick your system, size and zip. See what the job really costs and what a fair price is.</p></li>
-      <li class="step4"><span class="step4__n">2</span><h3>Add your photos</h3>
-        <p>Snap the existing equipment and install area so your price reflects your home, not a guess.</p></li>
-      <li class="step4"><span class="step4__n">3</span><h3>Place a good-faith deposit</h3>
-        <p>25% to meet a contractor at your price. Fully refundable if we don't pair you within 24 hours.</p></li>
-      <li class="step4"><span class="step4__n">4</span><h3>Meet your contractor</h3>
-        <p>A licensed, insured contractor accepts your Decoder Price. No haggling, no sales visit.</p></li>
-    </ol>
   </div>
 </section>
 
