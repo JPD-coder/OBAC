@@ -4401,7 +4401,7 @@ function renderCompare(r, amt){
   var box = el('qCompare');
   if (!amt){ box.innerHTML = ''; box.className = ''; return; }
   var cost = r.totalCost, fair = r.fair.suggested, diff = amt - fair;
-  var pct = function(p){ return (p * 100).toFixed(1).replace(/\.0$/, '') + '%'; };
+  var pct = function(p){ return Math.round(p * 100) + '%'; };
   var mQuote = (amt - cost) / amt, mFair = r.rates.suggestedMargin;
   var tone = diff > 0 ? 'qc--over' : 'qc--good';
   box.className = 'qc qsum ' + tone;
