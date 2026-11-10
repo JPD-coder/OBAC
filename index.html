@@ -36,14 +36,10 @@
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-/* the nav is sticky (65px on desktop, about 83px on a phone where the links
-   sit on their own row) — anchor targets clear it with room to breathe */
-section[id],header[id]{scroll-margin-top:88px}
-@media(max-width:759px){section[id],header[id]{scroll-margin-top:108px}}
-/* The Decoder link lands with its heading just under the nav, and the box
-   below it fits on one screen down to "More detailed quote". */
-#decoder{scroll-margin-top:74px}
-@media(max-width:759px){#decoder{scroll-margin-top:91px}}
+/* the nav is sticky at 64px — anchor targets have to clear it */
+section[id],header[id],div[id="decoder"]{scroll-margin-top:78px}
+/* on a phone the menu sits on its own row, so the bar is taller */
+@media(max-width:759px){section[id],header[id],div[id="decoder"]{scroll-margin-top:96px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{
   margin:0;background:var(--paper);color:var(--steel);
@@ -660,54 +656,6 @@ input[type=range].mc__slider::-moz-range-thumb{
 }
 @media(prefers-reduced-motion:reduce){.mc__out,.mc__seg,.mc__fairmark{transition:none}}
 
-/* Compact Decoder: the whole box about 12% smaller, type and spacing together,
-   so it reads as a tool beside the headline rather than a second hero. */
-.hero__tool{max-width:560px}
-.hero__tool .calc__title{font-size:clamp(18px,3.8vw,34px);margin-bottom:16px}
-.hero__tool .mc__out{padding:16px 16px 14px;margin-bottom:16px}
-.hero__tool .mc__out .lab{margin-bottom:7px}
-.hero__tool .mc__big{font-size:clamp(34px,6.4vw,46px)}
-.hero__tool .mc__profit{margin-top:9px;font-size:13px}
-.hero__tool .mc__track{height:24px;margin-top:26px}
-.hero__tool .mc__key{margin-top:13px}
-.hero__tool .mc__key span{font-size:10.5px}
-.hero__tool .mc__note{margin-top:16px;font-size:13px}
-.hero__tool .mc__cost{padding:12px 14px;margin-top:14px}
-.hero__tool .mc__cost span{font-size:12.5px}
-.hero__tool .mc__cost span i{font-size:11px}
-.hero__tool .mc__cost b{font-size:16px}
-.hero__tool .pg__grid{gap:10px;margin-top:16px}
-.hero__tool .f{gap:5px}
-.hero__tool .f label{font-size:10px}
-.hero__tool .more > summary span{font-size:12.5px}
-.hero__tool .respond{margin-top:14px}
-.hero__tool .btn--big{padding:15px 34px;font-size:15px}
-.hero__tool .more{margin-top:14px;padding-top:12px}
-@media(min-width:560px){
-  .hero__tool .f input[type=text],
-  .hero__tool .f select{font-size:14px;padding:8px 12px}
-  .hero__tool .f select{padding-right:34px;background-position:right 12px center}
-}
-/* On a phone the panel through "More detailed quote" has to fit one screen
-   after the Decoder link, so the spacing inside it tightens further. */
-@media(max-width:559px){
-  .hero__tool .calc__title{margin-bottom:8px}
-  .hero__tool .mc__out{padding:12px 14px 11px;margin-bottom:8px}
-  .hero__tool .mc__out .lab{margin-bottom:4px}
-  .hero__tool .mc__big{font-size:30px}
-  .hero__tool .mc__profit{margin-top:6px}
-  .hero__tool .mc__track{height:18px;margin-top:24px}
-  .hero__tool .mc__key{margin-top:8px}
-  .hero__tool .mc__cost{padding:8px 12px;margin-top:8px}
-  .hero__tool .pg__grid{gap:8px;margin-top:12px}
-  .hero__tool .f{gap:4px}
-  .hero__tool .pg__grid .f select,
-  .hero__tool .pg__grid .f input[type=text]{padding-top:6px;padding-bottom:6px}
-  .hero__tool .respond{margin-top:8px}
-  .hero__tool .btn--big{padding:10px 28px;font-size:14.5px}
-  .hero__tool .more{margin-top:6px;padding-top:8px}
-}
-
 /* ============================================================ DARK SURFACES */
 .sec--ink{background:var(--ink);color:#A7B2C1;position:relative;overflow:hidden}
 .sec--ink h2,.sec--ink h3{color:#fff}
@@ -969,6 +917,15 @@ input[type=range].mc__slider::-moz-range-thumb{
 @media(min-width:900px){
   .dec2{grid-template-columns:1fr 1fr;gap:40px;align-items:start}
   .dec2__fields{order:-1}
+  /* the form and the price box end on the same line */
+  .dec2{align-items:stretch}
+  .dec2__fields{display:flex;flex-direction:column}
+  .dec2__fields .pg__grid{row-gap:36px}
+  .dec2__fields .pg__grid .f select,
+  .dec2__fields .pg__grid .f input[type=text]{min-height:64px;font-size:16px}
+  .dec2__fields .more{margin-top:auto}
+  .dec2 .mc__out{padding-top:20px;padding-bottom:18px;margin-bottom:22px}
+  .dec2 .mc__track{margin-top:22px}
 }
 .runrow--pair{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:12px}
 .respond__hint{text-align:center}
@@ -1045,7 +1002,7 @@ input[type=range].mc__slider::-moz-range-thumb{
 
     <div class="hero__tool" id="decoder">
       <h2 class="calc__title">Open&nbsp;Book&nbsp;AC Decoder<sup>&trade;</sup></h2>
-      <p class="calc__intro">Five answers and a zip code. See what a fair price looks like for your home.</p>
+      <p class="calc__intro">Five answers and a zip code. See what a fair price looks like before you buy.</p>
 
       <div class="gauge">
         <div class="gauge__body dec2">
