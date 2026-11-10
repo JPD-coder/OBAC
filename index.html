@@ -953,6 +953,19 @@ input[type=range].mc__slider::-moz-range-thumb{
   .nav__links{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;justify-content:safe center;gap:5px;padding-inline:2px}
   .nav__links a{padding:7px 8px;font-size:10.5px;letter-spacing:-.01em;flex:none}
 }
+/* four buttons, all on screen: smaller type and padding so the row fits a
+   phone without swiping (fits down to a 320px-wide screen) */
+@media (max-width:680px){
+  .nav .nav__links{overflow-x:visible;justify-content:center;gap:4px;padding-inline:0;width:100%}
+  .nav .nav__links a{padding:6px 7px;font-size:10px;letter-spacing:-.02em;white-space:nowrap;flex:0 1 auto;min-width:0}
+}
+@media (max-width:379px){
+  .nav .nav__links{gap:3px}
+  .nav .nav__links a{padding:6px 6px;font-size:9.5px}
+}
+@media (max-width:339px){
+  .nav .nav__links a{padding:5px 5px;font-size:8.5px}
+}
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
