@@ -566,12 +566,10 @@ a{color:var(--blue)}
 .qc--under .qc__cell b{color:var(--yellow)}
 .qc__say{margin:16px 0 0;font-size:14.5px;line-height:1.65;color:#93A0B0}
 .qtotal{margin:16px 0 0;max-width:320px}
-.qtotal[hidden],.qpick[hidden],.qread[hidden]{display:none}
+.qtotal[hidden],.qread[hidden]{display:none}
+.qc__read{margin:0 0 14px;font-size:13.5px;color:#A7B2C1}
+.qc__assume{margin:12px 0 0;font-size:12.5px;line-height:1.5;color:#7C8899}
 .qread{margin:14px 0 0;font-size:14px;color:#A7B2C1}
-.qpick{margin:14px 0 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.qpick p{margin:0 0 4px;width:100%;font-size:14px;color:#A7B2C1}
-.qpick button{border:1px solid var(--yellow);background:transparent;color:var(--yellow);border-radius:999px;padding:8px 14px;font:600 14px var(--mono,monospace);cursor:pointer}
-.qpick button:hover{background:rgba(245,197,66,.12)}
 .qtotal input.needs{border-color:var(--yellow);box-shadow:0 0 0 3px rgba(245,197,66,.18)}
 .qneed{margin:14px 0 0;font-size:14px;line-height:1.55;color:var(--yellow);display:none}
 .qneed.on{display:block}
@@ -1228,7 +1226,6 @@ input[type=range].mc__slider::-moz-range-thumb{
         <div class="thumbs" data-thumbs></div>
 
         <p class="qread" id="qRead" hidden></p>
-        <div class="qpick" id="qPick" hidden></div>
         <div class="f qtotal" id="qAmountWrap" hidden><label for="qAmount">We couldn't read the total. Type it here</label>
           <input id="qAmount" type="text" inputmode="numeric" placeholder="e.g. 12,500" autocomplete="off"></div>
 
@@ -1238,7 +1235,7 @@ input[type=range].mc__slider::-moz-range-thumb{
           <button class="btn btn--yellow btn--big" id="qRun">Check my Quote</button>
           <button class="btn btn--yellow btn--big" id="pgRespond" type="button" disabled>Respond to Quote</button>
         </div>
-        <p class="respond__hint" id="pgRespondHint">Respond to Quote uses your Decoder Price. Fill in the Decoder above to turn it on.</p>
+        <p class="respond__hint" id="pgRespondHint">Check your quote to turn on Respond to Quote.</p>
         <div class="script respond__box" id="pgScriptBox" hidden>
           <div class="script__head">
             <span class="lab">Say this, word for word</span>
@@ -3887,7 +3884,7 @@ wireDrop('qdrop','qdropInput', function(list){
   [].slice.call(list || []).forEach(function(f){ QUOTEDOC.push(f); });
   renderQuoteDoc();
   var aw = el('qAmountWrap'); if (aw) { aw.hidden = true; el('qAmount').value = ''; }
-  var pk = el('qPick'); if (pk) pk.hidden = true;
+  QCHECK = null;
   if (QUOTEDOC.length){
     el('qdrop').classList.remove('needs');
     var w = el('qNeed'); if (w) w.className = 'qneed';
@@ -3952,7 +3949,7 @@ renderPhotos(); renderQuoteDoc();
     el('pgScript').textContent = '';
     if (!ready()){
       R = null;
-      el('pgRespond').disabled = true;
+      el('pgRespond').disabled = !QCHECK;   // a checked quote keeps it on
       idle(); return;
     }
     R = E.estimate(decoderJob());
@@ -3961,14 +3958,20 @@ renderPhotos(); renderQuoteDoc();
   }
 
   el('pgRespond').addEventListener('click', function(){
-    if (!R) return;
     var box = el('pgScriptBox');
     // the label stays put; only the panel below it opens and closes
     if (!box.hidden){ box.hidden = true; return; }
-    // no quote here, so the script is built around the Decoder Price itself
-    el('pgScript').textContent =
-      E.buildScript(decoderJob(), Object.assign({}, R,
-        { quote: { amount: R.likelyQuote, typical: true } }));
+    if (QCHECK) {
+      // a checked quote: the script answers that quote's own price
+      el('pgScript').textContent = E.buildScript(QCHECK.job,
+        Object.assign({}, QCHECK.r, { quote: { amount: QCHECK.amt } }));
+    } else {
+      if (!R) return;
+      // no quote here, so the script is built around the Decoder Price itself
+      el('pgScript').textContent =
+        E.buildScript(decoderJob(), Object.assign({}, R,
+          { quote: { amount: R.likelyQuote, typical: true } }));
+    }
     // no scrollIntoView: the panel opens directly under the button, and
     // jumping the page moves whatever the reader was looking at
     box.hidden = false;
@@ -4277,24 +4280,90 @@ function quoteTotals(text){
       found.push({ v: v, score: score + (hasDollar ? 0.5 : 0) });
     }
   });
-  if (!found.length) return [];
+  if (!found.length) return null;
+  // the line that most plainly names the total wins; on a tie the larger
+  // figure, since a quote's last word on price is its full price
   var top = Math.max.apply(null, found.map(function(f){ return f.score; }));
-  var best = found.filter(function(f){ return f.score === top; }).map(function(f){ return f.v; });
-  best = best.filter(function(v, i){ return best.indexOf(v) === i; });
-  // with no total line at all, the largest dollar figure is the price
-  if (top < 1) best = [Math.max.apply(null, best)];
-  return best.sort(function(a, b){ return b - a; }).slice(0, 4);
+  return Math.max.apply(null, found.filter(function(f){ return f.score === top; })
+                                  .map(function(f){ return f.v; }));
 }
 
-function showQuoteResult(amt){
-  var job = window.DECODER_JOB();
-  var r = E.estimate(job, { amount: amt });
+/* The system the quote is for, read off the quote itself. Anything the quote
+   doesn't say is left out and the engine prices it on its stated default. */
+function quoteJob(text){
+  var t = text.replace(/\s+/g, ' '), job = {}, said = [];
+  // brand: the first one named
+  var B = E.constants.BRANDS, hit = null;
+  Object.keys(B).forEach(function(k){
+    var names = [B[k].label].concat(k === 'amstd' ? ['American Std', 'AmStd'] : []);
+    names.forEach(function(n){
+      var i = t.search(new RegExp('\\b' + n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i'));
+      if (i > -1 && (!hit || i < hit.i)) hit = { k: k, i: i };
+    });
+  });
+  if (hit) { job.brand = hit.k; said.push(B[hit.k].label); }
+  // system type
+  var scope =
+      /mini[\s-]?split|ductless/i.test(t)                 ? ['mini_split', 'Mini-split'] :
+      /water[\s-]?source|geothermal/i.test(t)             ? ['water_source_hp', 'Water source heat pump'] :
+      /package[d]?\s*(unit|system|heat|a\/?c|air)|\bRTU\b/i.test(t) ? ['package_unit', 'Packaged unit'] :
+      /furnace/i.test(t)                                  ? ['full_split_gas', 'AC + gas furnace'] :
+      /heat\s*pump/i.test(t)                              ? ['heatpump_ahu', 'Heat pump + air handler'] :
+      /condens|air\s*condition|\bA\/?C\b|air\s*handler/i.test(t) ? ['ac_ahu', 'AC + air handler'] : null;
+  if (scope) { job.scope = scope[0]; said.push(scope[1]); }
+  // size: "3 ton", "3-ton", "36,000 BTU" cooling, or a model number's 036
+  var m = t.match(/(\d(?:\.\d)?)\s*-?\s*tons?\b/i), tons = null;
+  if (m) tons = parseFloat(m[1]);
+  if (!tons && (m = t.match(/\b(18|24|30|36|42|48|60)[,.]?000\s*btu/i))) tons = +m[1] / 12;
+  if (!tons && (m = t.match(/\b[A-Z0-9]{3,}?(018|024|030|036|042|048|060)[A-Z0-9]*\b/))) tons = +m[1] / 12;
+  if (tons && tons >= 1 && tons <= 5) { job.tons = tons; said.push(tons + ' ton'); }
+  // efficiency
+  if ((m = t.match(/(\d{2}(?:\.\d)?)\s*seer/i))) {
+    var sr = Math.max(14, Math.min(20, Math.round(parseFloat(m[1]))));
+    job.systemTier = String(sr); said.push(m[1] + ' SEER');
+  }
+  // gas furnace size
+  if (job.scope === 'full_split_gas' && (m = t.match(/\b(40|60|80|100|120)[,.]?000\s*btu/i))) job.furnaceBtu = +m[1] * 1000;
+  // where it is installed
+  if (/attic/i.test(t))        { job.orientation = 'horizontal'; job.indoorLocation = 'attic';  said.push('attic'); }
+  else if (/garage/i.test(t))  { job.orientation = 'horizontal'; job.indoorLocation = 'garage'; said.push('garage'); }
+  else if (/closet/i.test(t))  { job.orientation = /horizontal/i.test(t) ? 'horizontal' : 'vertical'; job.indoorLocation = 'closet'; said.push('closet'); }
+  if (/\broof(top)?\b/i.test(t)) { job.condenserLocation = 'roof'; job.craneRequired = true; said.push('roof'); }
+  // zip: an address's state + zip, or one labelled as a zip
+  if ((m = t.match(/\b[A-Z]{2}\.?,?\s+(\d{5})(?:-\d{4})?\b/) || t.match(/zip(?:\s*code)?\W{0,3}(\d{5})\b/i))) {
+    job.zip = m[1]; said.push(m[1]);
+  }
+  job.survey = {};
+  return { job: job, said: said };
+}
+
+var QCHECK = null;   // the last quote checked: its job and estimate, for Respond to Quote
+function showQuoteResult(read, amt){
+  var r = E.estimate(read.job, { amount: amt });
+  QCHECK = { job: read.job, r: r, amt: amt };
   renderCompare(r, amt);
-  el('qCompare').scrollIntoView({ behavior:'smooth', block:'start' });
+  var box = el('qCompare');
+  box.insertAdjacentHTML('afterbegin', '<p class="qc__read">Read from your quote: ' +
+    (read.said.length ? read.said.join(' · ') : 'price only') + '</p>');
+  // what the quote didn't say, in a few words each
+  var SHORT = [[/^Scope/, 'a heat pump system'], [/^System size/, '3 tons'], [/^SEER/, '14 SEER'],
+               [/^Orientation/, 'a vertical air handler'], [/^Indoor unit/, 'in a closet'],
+               [/^Ductwork/, 'existing ductwork reused']];
+  var miss = (r.assumptions || []).map(function(a){
+    for (var i = 0; i < SHORT.length; i++) if (SHORT[i][0].test(a)) return SHORT[i][1];
+    return null; }).filter(Boolean);
+  if (!read.job.brand) miss.push('a standard brand');
+  if (!read.job.zip) miss.push('national average labor and tax');
+  if (miss.length)
+    box.insertAdjacentHTML('beforeend', '<p class="qc__assume">Not on the quote, so we assumed ' +
+      miss.join(', ') + '.</p>');
+  el('pgRespond').disabled = false;
+  el('pgScriptBox').hidden = true;
+  box.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 el('qRun').addEventListener('click', function(){
-  var w = el('qNeed'), st = el('qRead'), pick = el('qPick'), aw = el('qAmountWrap');
+  var w = el('qNeed'), st = el('qRead'), aw = el('qAmountWrap');
   function need(msg, target){
     clearQuoteResults(true);
     w.className = 'qneed on'; w.textContent = msg;
@@ -4302,17 +4371,8 @@ el('qRun').addEventListener('click', function(){
     (target || w).scrollIntoView({ behavior:'smooth', block:'center' });
   }
   el('qdrop').classList.remove('needs'); el('qAmount').classList.remove('needs');
-  w.className = 'qneed'; pick.hidden = true;
+  w.className = 'qneed';
   if (!QUOTEDOC.length) { need('Upload your quote first.', el('qdrop')); return; }
-  // the quote is compared against the system described in the Decoder
-  if (el('pgRespond').disabled) {
-    need('Fill in the Decoder above first, so we know which system the quote is for.');
-    el('decoder').scrollIntoView({ behavior:'smooth', block:'start' });
-    return;
-  }
-  // a total the visitor typed after a failed read
-  var typed = parseFloat(String(val('qAmount')).replace(/[^0-9.]/g, ''));
-  if (!aw.hidden && typed >= 500) { showQuoteResult(typed); return; }
 
   var key = QUOTEDOC.map(function(f){ return f.name + f.size + f.lastModified; }).join('|');
   var btn = this; btn.disabled = true;
@@ -4321,18 +4381,12 @@ el('qRun').addEventListener('click', function(){
   (QREAD.key === key ? Promise.resolve(QREAD.text) : readQuote(QUOTEDOC))
   .then(function(text){
     QREAD = { key: key, text: text };
-    var t = quoteTotals(text);
     st.hidden = true;
-    if (t.length === 1) { aw.hidden = true; showQuoteResult(t[0]); return; }
-    if (t.length > 1) {
-      pick.innerHTML = '<p>Your quote shows more than one price. Which one are you comparing?</p>' +
-        t.map(function(v){ return '<button type="button" data-v="' + v + '">' + fmt(v) + '</button>'; }).join('');
-      pick.hidden = false;
-      [].forEach.call(pick.querySelectorAll('button'), function(b){
-        b.addEventListener('click', function(){ pick.hidden = true; showQuoteResult(+b.dataset.v); });
-      });
-      return;
-    }
+    var read = quoteJob(text), amt = quoteTotals(text);
+    // a total typed after a failed read
+    var typed = parseFloat(String(val('qAmount')).replace(/[^0-9.]/g, ''));
+    if (!amt && !aw.hidden && typed >= 500) amt = typed;
+    if (amt) { aw.hidden = true; showQuoteResult(read, amt); return; }
     aw.hidden = false;
     need('We couldn’t find the total on that quote. Type it below and press Check my Quote again.', el('qAmount'));
   })
