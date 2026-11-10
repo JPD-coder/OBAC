@@ -3874,6 +3874,7 @@ wireDrop('qdrop','qdropInput', function(list){
   renderQuoteDoc();
   var aw = el('qAmountWrap'); if (aw) { aw.hidden = true; el('qAmount').value = ''; }
   QCHECK = null;
+  el('pgRespond').disabled = true; el('pgScriptBox').hidden = true;
   if (QUOTEDOC.length){
     el('qdrop').classList.remove('needs');
     var w = el('qNeed'); if (w) w.className = 'qneed';
@@ -3938,11 +3939,9 @@ renderPhotos(); renderQuoteDoc();
     el('pgScript').textContent = '';
     if (!ready()){
       R = null;
-      el('pgRespond').disabled = !QCHECK;   // a checked quote keeps it on
       idle(); return;
     }
     R = E.estimate(decoderJob());
-    el('pgRespond').disabled = false;
     draw();
   }
 
@@ -3950,17 +3949,11 @@ renderPhotos(); renderQuoteDoc();
     var box = el('pgScriptBox');
     // the label stays put; only the panel below it opens and closes
     if (!box.hidden){ box.hidden = true; return; }
-    if (QCHECK) {
-      // a checked quote: the script answers that quote's own price
-      el('pgScript').textContent = E.buildScript(QCHECK.job,
-        Object.assign({}, QCHECK.r, { quote: { amount: QCHECK.amt } }));
-    } else {
-      if (!R) return;
-      // no quote here, so the script is built around the Decoder Price itself
-      el('pgScript').textContent =
-        E.buildScript(decoderJob(), Object.assign({}, R,
-          { quote: { amount: R.likelyQuote, typical: true } }));
-    }
+    // only ever the checked quote: its price against our suggested
+    // Decoder Price and cost for the system the quote describes
+    if (!QCHECK) return;
+    el('pgScript').textContent = E.buildScript(QCHECK.job,
+      Object.assign({}, QCHECK.r, { quote: { amount: QCHECK.amt } }));
     // no scrollIntoView: the panel opens directly under the button, and
     // jumping the page moves whatever the reader was looking at
     box.hidden = false;
@@ -4388,6 +4381,8 @@ el('qRun').addEventListener('click', function(){
 
 /* ---------- clear the results when the quote is removed ---------- */
 function clearQuoteResults(all){
+  // Respond to Quote only ever answers a quote that has just been checked
+  if (all){ QCHECK = null; el('pgRespond').disabled = true; el('pgScriptBox').hidden = true; }
   var box = el('qCompare');
   if (box){ box.innerHTML = ''; box.className = ''; }
   if (all){ var res = el('res'); if (res) res.style.display = 'none'; }
