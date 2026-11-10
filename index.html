@@ -576,8 +576,9 @@ a{color:var(--blue)}
 .qsum__r--total{border-top:2px solid rgba(255,255,255,.35);margin-top:4px;padding-top:14px}
 .qsum__r--total span{color:#fff;font-weight:700}
 .qsum__r--total b{font-size:28px}
-.qc--over .qsum__r--total b{color:#FF7A6E}
-.qc--good .qsum__r--total b{color:#4FD6A4}
+.qsum__r--total em.qsum__pct{font:700 18px/1 var(--mono)}
+.qc--over .qsum__pct{color:#4FD6A4}
+.qc--good .qsum__pct{color:#FF7A6E}
 .qsum__cost{margin:10px 0 0;font-size:13px;color:#7C8899}
 .qrespond{margin-top:22px;text-align:center;max-width:800px}
 .qrespond[hidden]{display:none}
@@ -4347,8 +4348,6 @@ function showQuoteResult(read, amt){
   QCHECK = { job: read.job, r: r, amt: amt };
   renderCompare(r, amt);
   var box = el('qCompare');
-  box.insertAdjacentHTML('afterbegin', '<p class="qc__read">' +
-    (read.said.length ? read.said.join(' · ') : 'price only') + '</p>');
   el('qRespond').hidden = false;
   el('pgScriptBox').hidden = true;
   box.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -4406,10 +4405,11 @@ function renderCompare(r, amt){
   var tone = diff > 0 ? 'qc--over' : 'qc--good';
   box.className = 'qc qsum ' + tone;
   box.innerHTML =
-    '<div class="qsum__r"><span>Their quote</span><b>' + fmt(amt) + '</b><em>' + pct(mQuote) + ' margin</em></div>' +
-    '<div class="qsum__r"><span>− Decoder Price</span><b>' + fmt(fair) + '</b><em>' + pct(mFair) + ' margin</em></div>' +
+    '<div class="qsum__r"><span>Them</span><b>' + fmt(amt) + '</b><em>' + pct(mQuote) + ' margin</em></div>' +
+    '<div class="qsum__r"><span>− Ours</span><b>' + fmt(fair) + '</b><em>' + pct(mFair) + ' margin</em></div>' +
     '<div class="qsum__r qsum__r--total"><span>' + (diff > 0 ? 'Overpaying' : 'Under our price') + '</span><b>' +
-      fmt(Math.abs(diff)) + '</b><em></em></div>' +
+      fmt(Math.abs(diff)) + '</b><em class="qsum__pct">' + (diff > 0 ? '+' : '−') +
+      Math.round(Math.abs(diff) / fair * 100) + '%</em></div>' +
     '<p class="qsum__cost">Contractor’s cost: ' + fmt(cost) + '</p>';
 }
 
