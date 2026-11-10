@@ -569,14 +569,19 @@ a{color:var(--blue)}
 .qtotal[hidden],.qread[hidden]{display:none}
 .qc__read{margin:0 0 14px;font-size:13.5px;color:#A7B2C1}
 .qsum{max-width:520px}
-.qsum__r{display:grid;grid-template-columns:1fr auto 104px;align-items:baseline;gap:14px;padding:10px 0}
-.qsum__r span{font-size:15px;color:#A7B2C1}
-.qsum__r b{font:700 22px/1 var(--mono);color:#fff;text-align:right;white-space:nowrap}
-.qsum__r em{font:500 13px/1 var(--mono);font-style:normal;color:#7C8899;white-space:nowrap}
-.qsum__r--total{border-top:2px solid rgba(255,255,255,.35);margin-top:4px;padding-top:14px}
+/* same type as the rest of the site; rows shrink to fit any phone */
+.qsum__r{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:baseline;column-gap:12px;padding:10px 0;font-family:var(--body)}
+.qsum__r span{font-size:15px;color:#A7B2C1;min-width:0}
+.qsum__r b{font:700 20px/1.1 var(--body);font-variant-numeric:tabular-nums;color:#fff;text-align:right;white-space:nowrap}
+.qsum__r em{font:500 13px/1.1 var(--body);font-style:normal;color:#7C8899;white-space:nowrap;min-width:5.6em}
 .qsum__r--total span{color:#fff;font-weight:700}
-.qsum__r--total b{font-size:28px}
-.qsum__r--total em.qsum__pct{font:700 18px/1 var(--mono)}
+.qsum__r--total b{font-size:24px}
+.qsum__r--total em.qsum__pct{font:700 15px/1.1 var(--body)}
+.qsum__cost{margin:10px 0 0;font-size:13px;color:#7C8899}
+.qrespond{margin-top:22px;text-align:center;max-width:800px}
+.qrespond[hidden]{display:none}
+.qrespond .respond__box{text-align:left;margin-top:16px}
+@media(max-width:400px){.qsum__r{column-gap:8px}.qsum__r span{font-size:14px}.qsum__r b{font-size:18px}.qsum__r--total b{font-size:20px}.qsum__r em{font-size:12px;min-width:0}.qsum__r--total em.qsum__pct{font-size:13px}}
 /* the difference row carries the colour: green over, red under */
 .qsum__r--total{margin:6px -12px 0;padding:14px 12px;border-radius:10px;border-top:0;position:relative}
 .qsum__r--total::before{content:"";position:absolute;left:12px;right:12px;top:-4px;border-top:2px solid rgba(255,255,255,.35)}
@@ -584,12 +589,6 @@ a{color:var(--blue)}
 .qc--good .qsum__r--total{background:rgba(255,122,110,.12)}
 .qc--over .qsum__r--total span,.qc--over .qsum__r--total b,.qc--over .qsum__pct{color:#4FD6A4}
 .qc--good .qsum__r--total span,.qc--good .qsum__r--total b,.qc--good .qsum__pct{color:#FF7A6E}
-.qsum__cost{margin:10px 0 0;font-size:13px;color:#7C8899}
-.qrespond{margin-top:22px;text-align:center;max-width:800px}
-.qrespond[hidden]{display:none}
-.qrespond .respond__box{text-align:left;margin-top:16px}
-@media(max-width:480px){.qsum__r{grid-template-columns:1fr auto 86px;gap:10px}.qsum__r b{font-size:19px}.qsum__r--total b{font-size:24px}}
-.qc__assume{margin:12px 0 0;font-size:12.5px;line-height:1.5;color:#7C8899}
 .qread{margin:14px 0 0;font-size:14px;color:#A7B2C1}
 .qtotal input.needs{border-color:var(--yellow);box-shadow:0 0 0 3px rgba(245,197,66,.18)}
 .qneed{margin:14px 0 0;font-size:14px;line-height:1.55;color:var(--yellow);display:none}
