@@ -4411,7 +4411,7 @@ function renderCompare(r, amt){
   box.className = 'qc qsum ' + tone;
   box.innerHTML =
     '<div class="qsum__r"><span>Them</span><b>' + fmt(amt) + '</b><em>' + pct(mQuote) + ' margin</em></div>' +
-    '<div class="qsum__r"><span>− Ours</span><b>' + fmt(fair) + '</b><em>' + pct(mFair) + ' margin</em></div>' +
+    '<div class="qsum__r"><span>Ours</span><b>' + fmt(fair) + '</b><em>' + pct(mFair) + ' margin</em></div>' +
     '<div class="qsum__r qsum__r--total"><span>' + (diff > 0 ? 'Overpaying' : 'Under our price') + '</span><b>' +
       fmt(Math.abs(diff)) + '</b><em class="qsum__pct">' + (diff > 0 ? '+' : '−') +
       Math.round(Math.abs(diff) / fair * 100) + '% ' + (diff > 0 ? 'over' : 'under') + '</em></div>' +
