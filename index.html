@@ -952,6 +952,13 @@ input[type=range].mc__slider::-moz-range-thumb{
 .step4 h3{margin:14px 0 6px;font-size:18px;color:#fff}
 .step4 p{margin:0;font-size:15px;line-height:1.55;color:#93A0B0}
 #works{padding-bottom:40px}
+/* five menu buttons on a phone: one compact row that swipes sideways if a
+   narrow screen can't fit them all, so the bar stays 83px tall and the
+   section links still land where they were tuned to */
+@media (max-width:680px){
+  .nav__links{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;justify-content:safe center;gap:5px;padding-inline:2px}
+  .nav__links a{padding:7px 8px;font-size:10.5px;letter-spacing:-.01em;flex:none}
+}
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -979,6 +986,7 @@ input[type=range].mc__slider::-moz-range-thumb{
     <div class="nav__links">
       <a href="#decoder">Check a Price</a>
       <a href="#check">Check a Quote</a>
+      <a href="#dispatch">Find a Contractor</a>
       <a href="#works">How it Works</a>
       <a href="#how">Why Trust Us</a>
     </div>
@@ -1113,7 +1121,7 @@ input[type=range].mc__slider::-moz-range-thumb{
 
 
           <div class="respond" id="pgRespondWrap">
-            <button class="btn btn--yellow btn--big" id="pgRespond" type="button" disabled>How to Respond</button>
+            <button class="btn btn--yellow btn--big" id="pgRespond" type="button" disabled>How to Respond to My Quote</button>
           </div>
           <div class="script respond__box" id="pgScriptBox" hidden>
             <div class="script__head">
