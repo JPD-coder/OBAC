@@ -917,13 +917,13 @@ input[type=range].mc__slider::-moz-range-thumb{
 @media(min-width:900px){
   .dec2{grid-template-columns:1fr 1fr;gap:40px;align-items:start}
   .dec2__fields{order:-1}
-  /* the form and the price box end on the same line */
+  /* the five fields sit centered against the green Decoder box (the script
+     below sets --decbox to its height), and More detailed quote ends on the
+     same line as the bottom of the price panel */
   .dec2{align-items:stretch}
   .dec2__fields{display:flex;flex-direction:column}
-  .dec2__fields .pg__grid{row-gap:36px}
-  .dec2__fields .pg__grid .f select,
-  .dec2__fields .pg__grid .f input[type=text]{min-height:64px;font-size:16px}
-  .dec2__fields .more{margin-top:auto}
+  .dec2__fields .pg__grid{min-height:var(--decbox,auto);align-content:center}
+  .dec2__fields .more{margin-top:auto;margin-bottom:4px}
   .dec2 .mc__out{padding-top:20px;padding-bottom:18px;margin-bottom:22px}
   .dec2 .mc__track{margin-top:22px}
 }
@@ -4615,6 +4615,13 @@ el('pbFile').addEventListener('change', function(){
   function sync(){ h.hidden = !b.disabled; }
   sync(); new MutationObserver(sync).observe(b,{attributes:true,attributeFilter:['disabled']});
 })();
+</script>
+<script>
+(function(){ var f=document.querySelector('.dec2__fields'), b=document.querySelector('.dec2__panel .mc__out');
+  if(!f||!b) return;
+  function fit(){ f.style.setProperty('--decbox', window.innerWidth>=900 ? b.offsetHeight+'px' : 'auto'); }
+  fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(b); })();
 </script>
 </body>
 </html>
