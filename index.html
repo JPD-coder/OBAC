@@ -568,6 +568,21 @@ a{color:var(--blue)}
 .qtotal{margin:16px 0 0;max-width:320px}
 .qtotal[hidden],.qread[hidden]{display:none}
 .qc__read{margin:0 0 14px;font-size:13.5px;color:#A7B2C1}
+.qsum{max-width:520px}
+.qsum__r{display:grid;grid-template-columns:1fr auto 104px;align-items:baseline;gap:14px;padding:10px 0}
+.qsum__r span{font-size:15px;color:#A7B2C1}
+.qsum__r b{font:700 22px/1 var(--mono);color:#fff;text-align:right;white-space:nowrap}
+.qsum__r em{font:500 13px/1 var(--mono);font-style:normal;color:#7C8899;white-space:nowrap}
+.qsum__r--total{border-top:2px solid rgba(255,255,255,.35);margin-top:4px;padding-top:14px}
+.qsum__r--total span{color:#fff;font-weight:700}
+.qsum__r--total b{font-size:28px}
+.qc--over .qsum__r--total b{color:#FF7A6E}
+.qc--good .qsum__r--total b{color:#4FD6A4}
+.qsum__cost{margin:10px 0 0;font-size:13px;color:#7C8899}
+.qrespond{margin-top:22px;text-align:center;max-width:800px}
+.qrespond[hidden]{display:none}
+.qrespond .respond__box{text-align:left;margin-top:16px}
+@media(max-width:480px){.qsum__r{grid-template-columns:1fr auto 86px;gap:10px}.qsum__r b{font-size:19px}.qsum__r--total b{font-size:24px}}
 .qc__assume{margin:12px 0 0;font-size:12.5px;line-height:1.5;color:#7C8899}
 .qread{margin:14px 0 0;font-size:14px;color:#A7B2C1}
 .qtotal input.needs{border-color:var(--yellow);box-shadow:0 0 0 3px rgba(245,197,66,.18)}
@@ -1220,22 +1235,22 @@ input[type=range].mc__slider::-moz-range-thumb{
 
         <p class="qneed" id="qNeed"></p>
 
-        <div class="runrow runrow--pair">
+        <div class="runrow">
           <button class="btn btn--yellow btn--big" id="qRun">Check my Quote</button>
-          <button class="btn btn--yellow btn--big" id="pgRespond" type="button" disabled>Respond to Quote</button>
-        </div>
-        <p class="respond__hint" id="pgRespondHint">Check your quote to turn on Respond to Quote.</p>
-        <div class="script respond__box" id="pgScriptBox" hidden>
-          <div class="script__head">
-            <span class="lab">Say this, word for word</span>
-            <button class="copybtn" id="pgCopyScript" type="button">Copy script</button>
-          </div>
-          <pre id="pgScript"></pre>
         </div>
       </div>
     </div>
     <div id="qCompare"></div>
-    <div id="resSlotA"></div>
+    <div class="qrespond" id="qRespond" hidden>
+      <button class="btn btn--yellow btn--big" id="pgRespond" type="button">Respond to Quote</button>
+      <div class="script respond__box" id="pgScriptBox" hidden>
+        <div class="script__head">
+          <span class="lab">Say this, word for word</span>
+          <button class="copybtn" id="pgCopyScript" type="button">Copy script</button>
+        </div>
+        <pre id="pgScript"></pre>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -3874,7 +3889,7 @@ wireDrop('qdrop','qdropInput', function(list){
   renderQuoteDoc();
   var aw = el('qAmountWrap'); if (aw) { aw.hidden = true; el('qAmount').value = ''; }
   QCHECK = null;
-  el('pgRespond').disabled = true; el('pgScriptBox').hidden = true;
+  el('qRespond').hidden = true; el('pgScriptBox').hidden = true;
   if (QUOTEDOC.length){
     el('qdrop').classList.remove('needs');
     var w = el('qNeed'); if (w) w.className = 'qneed';
@@ -4332,21 +4347,9 @@ function showQuoteResult(read, amt){
   QCHECK = { job: read.job, r: r, amt: amt };
   renderCompare(r, amt);
   var box = el('qCompare');
-  box.insertAdjacentHTML('afterbegin', '<p class="qc__read">Read from your quote: ' +
+  box.insertAdjacentHTML('afterbegin', '<p class="qc__read">' +
     (read.said.length ? read.said.join(' · ') : 'price only') + '</p>');
-  // what the quote didn't say, in a few words each
-  var SHORT = [[/^Scope/, 'a heat pump system'], [/^System size/, '3 tons'], [/^SEER/, '14 SEER'],
-               [/^Orientation/, 'a vertical air handler'], [/^Indoor unit/, 'in a closet'],
-               [/^Ductwork/, 'existing ductwork reused']];
-  var miss = (r.assumptions || []).map(function(a){
-    for (var i = 0; i < SHORT.length; i++) if (SHORT[i][0].test(a)) return SHORT[i][1];
-    return null; }).filter(Boolean);
-  if (!read.job.brand) miss.push('a standard brand');
-  if (!read.job.zip) miss.push('national average labor and tax');
-  if (miss.length)
-    box.insertAdjacentHTML('beforeend', '<p class="qc__assume">Not on the quote, so we assumed ' +
-      miss.join(', ') + '.</p>');
-  el('pgRespond').disabled = false;
+  el('qRespond').hidden = false;
   el('pgScriptBox').hidden = true;
   box.scrollIntoView({ behavior:'smooth', block:'start' });
 }
@@ -4389,7 +4392,7 @@ el('qRun').addEventListener('click', function(){
 /* ---------- clear the results when the quote is removed ---------- */
 function clearQuoteResults(all){
   // Respond to Quote only ever answers a quote that has just been checked
-  if (all){ QCHECK = null; el('pgRespond').disabled = true; el('pgScriptBox').hidden = true; }
+  if (all){ QCHECK = null; el('qRespond').hidden = true; el('pgScriptBox').hidden = true; }
   var box = el('qCompare');
   if (box){ box.innerHTML = ''; box.className = ''; }
   if (all){ var res = el('res'); if (res) res.style.display = 'none'; }
@@ -4397,58 +4400,17 @@ function clearQuoteResults(all){
 function renderCompare(r, amt){
   var box = el('qCompare');
   if (!amt){ box.innerHTML = ''; box.className = ''; return; }
-
-  // ONE basis, the same one the Decoder uses: cost + overhead + commission,
-  // then a 35% gross margin on top. Everything below reconciles to it.
-  var cost = r.totalCost, fair = r.fair.suggested;
-  var over = amt - fair;
-  var margin = (amt - cost) / amt;
-  var fairM = r.rates.suggestedMargin;
-  var tone = margin > r.rates.fairHigh ? 'qc--over'
-           : margin < r.rates.alertBelow ? 'qc--under' : 'qc--good';
-
-  var say;
-  if (tone === 'qc--over'){
-    say = 'Your quote carries ' + (margin * 100).toFixed(1) + '% gross margin. ' +
-          fmt(over) + ' of it is profit above what the same job supports. ' +
-          'Ask them to meet ' + fmt(fair) + '.';
-  } else if (tone === 'qc--under'){
-    say = 'Your quote is below what the work supports. That is not a bargain \u2014 it usually means ' +
-          'something is missing from the scope, or the company will not be there to honor the warranty. ' +
-          'Verify the license, the insurance, and that a permit is being pulled.';
-  } else {
-    say = 'Your quote sits inside the fair band at ' + (margin * 100).toFixed(1) + '% gross margin. ' +
-          (over > 0 ? 'It is ' + fmt(over) + ' above the Decoder Price, which is still a reasonable number. '
-                    : 'It is at or below the Decoder Price. ') +
-          'Equipment, labor, commission and overhead are all covered with a real profit left over.';
-  }
-
-  box.className = 'qc ' + tone;
+  var cost = r.totalCost, fair = r.fair.suggested, diff = amt - fair;
+  var pct = function(p){ return (p * 100).toFixed(1).replace(/\.0$/, '') + '%'; };
+  var mQuote = (amt - cost) / amt, mFair = r.rates.suggestedMargin;
+  var tone = diff > 0 ? 'qc--over' : 'qc--good';
+  box.className = 'qc qsum ' + tone;
   box.innerHTML =
-    '<span class="lab">Your quote against the book</span>' +
-    '<div class="qc__rows">' +
-      row('Total cost to the contractor',
-          'Equipment, materials, labor, taxes, permit, plus overhead and sales commission.', fmt(cost), '') +
-      row('Open Book AC Decoder Price',
-          'A fair ' + Math.round(fairM * 100) + '% gross margin on that cost.', fmt(fair), '') +
-      row('Your quote', '', fmt(amt), ' qc__r--you') +
-    '</div>' +
-    '<div class="qc__gap">' +
-      '<div class="qc__cell"><span class="lab">' +
-        (over >= 0 ? 'Profit above the Decoder Price' : 'Below the Decoder Price') +
-        '</span><b>' + fmt(Math.abs(over)) + '</b><i>' +
-        (over >= 0 ? 'what you would be paying over a fair price' : 'under what the work supports') +
-      '</i></div>' +
-      '<div class="qc__cell"><span class="lab">Margin in your quote</span><b>' +
-        (margin * 100).toFixed(1) + '%</b><i>a fair job runs ' +
-        Math.round(r.rates.fairLow * 100) + ' to ' + Math.round(r.rates.fairHigh * 100) + '%</i></div>' +
-    '</div>' +
-    '<p class="qc__say">' + say + '</p>';
-
-  function row(label, sub, value, extra){
-    return '<div class="qc__r' + extra + '"><span>' + label +
-           (sub ? '<i>' + sub + '</i>' : '') + '</span><b>' + value + '</b></div>';
-  }
+    '<div class="qsum__r"><span>Their quote</span><b>' + fmt(amt) + '</b><em>' + pct(mQuote) + ' margin</em></div>' +
+    '<div class="qsum__r"><span>− Decoder Price</span><b>' + fmt(fair) + '</b><em>' + pct(mFair) + ' margin</em></div>' +
+    '<div class="qsum__r qsum__r--total"><span>' + (diff > 0 ? 'Overpaying' : 'Under our price') + '</span><b>' +
+      fmt(Math.abs(diff)) + '</b><em></em></div>' +
+    '<p class="qsum__cost">Contractor’s cost: ' + fmt(cost) + '</p>';
 }
 
 // Tell them what their zip actually bought as soon as it is complete.
