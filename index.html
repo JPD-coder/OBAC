@@ -3972,8 +3972,10 @@ renderPhotos(); renderQuoteDoc();
     // only ever the checked quote: its price against our suggested
     // Decoder Price and cost for the system the quote describes
     if (!QCHECK) return;
+    // the original Respond script from the first site, word for word: the
+    // contractor's cost and our Decoder Price for the job on the quote
     el('pgScript').textContent = E.buildScript(QCHECK.job,
-      Object.assign({}, QCHECK.r, { quote: { amount: QCHECK.amt } }));
+      Object.assign({}, QCHECK.r, { quote: { amount: QCHECK.amt, typical: true } }));
     // no scrollIntoView: the panel opens directly under the button, and
     // jumping the page moves whatever the reader was looking at
     box.hidden = false;
