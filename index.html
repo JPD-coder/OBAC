@@ -4790,5 +4790,25 @@ el('pbFile').addEventListener('change', function(){
   fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
   if (window.ResizeObserver) new ResizeObserver(fit).observe(b); })();
 </script>
+<script>
+/* Always open at the top. Menu links scroll to their section without adding
+   #check (etc.) to the address, so a refresh or a reopened tab starts at the
+   top instead of jumping back to the last section visited. #admin still works. */
+(function(){
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (location.hash && location.hash !== '#admin') {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+  if (location.hash !== '#admin') window.scrollTo(0, 0);
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute('href').slice(1), t = id && document.getElementById(id);
+    if (!t || id === 'admin') return;
+    e.preventDefault();
+    t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+})();
+</script>
 </body>
 </html>
