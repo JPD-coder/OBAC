@@ -1013,6 +1013,68 @@ input[type=range].mc__slider::-moz-range-thumb{
   .nav .nav__links a{padding:5px 5px;font-size:8.5px}
 }
 
+
+/* ==================================================== DESIGN SYSTEM
+   One scale for the whole page, so nothing outranks what it belongs to.
+     title   every section heading            26px phone -> 38px desktop
+     lead    the line under a title           16 -> 17px
+     h3      card and step titles             16 -> 17px
+     body    paragraphs                       15px
+     label   eyebrows and field labels        11px mono caps
+   Buttons and fields share one height (48px); cards one radius (16px);
+   sections one rhythm (56px phone, 88px desktop). Section headers and the
+   single-column boxes sit centered on the page. */
+:root{--t-title:clamp(26px,3vw,38px);--t-lead:clamp(16px,1.3vw,17px);--t-h3:clamp(16px,1.2vw,17px);--t-body:15px;--ctl:48px;--card-r:16px;--sec-y:clamp(56px,7vw,88px);--col:760px}
+
+/* titles */
+.statement h1,.calc__title,.sechead,.fairhead,.sec h2,#how h2{
+  font:900 var(--t-title)/1.08 var(--display) !important;letter-spacing:-.035em !important;
+  white-space:normal !important;text-wrap:balance;margin:0 0 14px !important;color:#fff}
+.calc__title sup,.statement h1 sup{font-size:.4em}
+
+/* lead lines */
+.statement__close p,.calc__intro,.sec__head p,.whyintro{
+  font-size:var(--t-lead) !important;line-height:1.6 !important;margin-left:auto;margin-right:auto}
+
+/* card and step titles, body copy */
+.step4 h3,.why--cards summary b,.why--cards li b{font-size:var(--t-h3) !important;line-height:1.3 !important}
+.step4 p,.whypara,.why li span,.why li p{font-size:var(--t-body) !important;line-height:1.6 !important}
+
+/* buttons and fields: one height */
+.btn--big{min-height:var(--ctl);padding:0 28px !important;font-size:15px !important;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.f input[type=text],.f input[type=email],.f input[type=tel],.f input[type=number],.f select{
+  min-height:var(--ctl);height:var(--ctl);font-size:15px !important;padding-top:0 !important;padding-bottom:0 !important;border-radius:10px}
+.f label{margin-bottom:2px}
+
+/* cards */
+.card,.qc,.step4,.why--cards li,.dcard,.mc__out,.mc__cost{border-radius:var(--card-r) !important}
+
+/* section rhythm */
+.sec{padding-top:var(--sec-y) !important;padding-bottom:var(--sec-y) !important}
+.sec__head{margin-bottom:32px !important}
+
+/* symmetry: centered headers, centered single-column boxes */
+.statement,.sec__head,.calc__head,.whyhead__copy{text-align:center}
+.statement{max-width:var(--col);margin-left:auto !important;margin-right:auto !important}
+.statement h1,.statement__close p,.sec__head,.sec__head p{margin-left:auto !important;margin-right:auto !important;max-width:var(--col)}
+.calc__title,.calc__intro{text-align:center;margin-left:auto !important;margin-right:auto !important}
+#check .sec__head,#check .card,#check #qCompare,#check .qrespond,#dispatch .sec__head,#dispatch .dcard{max-width:var(--col);margin-left:auto !important;margin-right:auto !important}
+#check .qsum{max-width:var(--col)}
+.runrow,.decode,.navrow{justify-content:center}
+.footnote{text-align:center}
+
+/* lead lines read centered, never justified */
+.statement__close p,.calc__intro,.sec__head p{text-align:center !important;hyphens:manual !important}
+.hero__tool .calc__title{text-align:center !important}
+/* Why Trust Us: header photo and copy side by side, centered as a pair */
+.whyhead{max-width:var(--col);margin-left:auto !important;margin-right:auto !important;align-items:center;justify-content:space-between}
+.whyhead__copy{text-align:left}
+@media(max-width:759px){.whyhead__copy{text-align:center}.whyhead__copy .whyintro{margin-left:auto;margin-right:auto}}
+/* Good Contractors: photo, heading and copy centered in one column */
+.fairgroup{max-width:var(--col);margin-left:auto !important;margin-right:auto !important;justify-items:center}
+.fairgroup .closing__img{justify-self:center}
+.fairgroup__copy{text-align:left;width:100%}
+.fairhead{text-align:center}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
