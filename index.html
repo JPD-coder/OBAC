@@ -1066,6 +1066,18 @@ input[type=range].mc__slider::-moz-range-thumb{
 /* lead lines read centered, never justified */
 .statement__close p,.calc__intro,.sec__head p{text-align:center !important;hyphens:manual !important}
 .hero__tool .calc__title{text-align:center !important}
+/* Upload boxes: one slim line, the height of a button. Icon, title, the
+   hint right after it, and the attached count at the end. */
+#check .drop,#dispatch .drop{display:flex;align-items:center;gap:10px;text-align:left;flex-wrap:wrap;
+  padding:8px 16px !important;min-height:var(--ctl);border-width:1.5px}
+#check .drop .drop__icon,#dispatch .drop .drop__icon{flex:none;margin:0 !important;width:20px;height:20px}
+#check .drop .drop__title,#dispatch .drop .drop__title{display:inline;font-size:14.5px;margin:0 !important;white-space:nowrap}
+#check .drop .drop__sub,#dispatch .drop .drop__sub{display:inline;margin:0 !important;max-width:none;font-size:13px;flex:1 1 0;min-width:0}
+#check .drop .drop__count,#dispatch .drop .drop__count{margin:0 0 0 auto !important;white-space:nowrap}
+#check .drop,#dispatch .drop{flex-wrap:nowrap}
+/* once files are attached the count replaces the hint, so it stays one line */
+#check .drop:has(.drop__count.on) .drop__sub,#dispatch .drop:has(.drop__count.on) .drop__sub{display:none}
+@media(max-width:480px){.drop__hint{display:none}}
 /* Why Trust Us: header photo and copy side by side, centered as a pair */
 .whyhead{max-width:var(--col);margin-left:auto !important;margin-right:auto !important;align-items:center;justify-content:space-between}
 .whyhead__copy{text-align:left}
@@ -1314,7 +1326,7 @@ input[type=range].mc__slider::-moz-range-thumb{
             <path d="M12 16V4m0 0 4 4m-4-4L8 8"/><path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/>
           </svg>
           <b class="drop__title">Drop the quote here</b>
-          <span class="drop__sub">A photo or PDF of the proposal. <u>Browse files</u></span>
+          <span class="drop__sub"><span class="drop__hint">Photo or PDF · </span><u>Browse</u></span>
           <span class="drop__count" id="qdropCount"></span>
         </label>
         <input id="qdropInput" type="file" accept="image/*,.pdf" multiple class="sr">
@@ -1392,7 +1404,7 @@ input[type=range].mc__slider::-moz-range-thumb{
             <circle cx="12" cy="13.6" r="3.4"/>
           </svg>
           <b class="drop__title">Add your photos</b>
-          <span class="drop__sub">Your existing equipment and install area. <u>Browse files</u></span>
+          <span class="drop__sub"><span class="drop__hint">Equipment and install area · </span><u>Browse</u></span>
           <span class="drop__count" id="dropCount"></span>
         </label>
         <input id="dropInput" type="file" accept="image/*" multiple class="sr">
