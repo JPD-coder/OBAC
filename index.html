@@ -1025,7 +1025,7 @@ input[type=range].mc__slider::-moz-range-thumb{
    Buttons and fields share one height (48px); cards one radius (16px);
    sections one rhythm (56px phone, 88px desktop). Section headers and the
    single-column boxes sit centered on the page. */
-:root{--t-title:clamp(26px,3vw,38px);--t-lead:clamp(16px,1.3vw,17px);--t-h3:clamp(16px,1.2vw,17px);--t-body:15px;--ctl:48px;--card-r:16px;--sec-y:clamp(56px,7vw,88px);--col:760px}
+:root{--t-title:clamp(26px,3vw,38px);--t-lead:clamp(16px,1.3vw,17px);--t-h3:clamp(16px,1.2vw,17px);--t-body:15px;--ctl:48px;--card-r:16px;--sec-y:clamp(28px,3.5vw,44px);--col:760px}
 
 /* titles */
 .statement h1,.calc__title,.sechead,.fairhead,.sec h2,#how h2{
@@ -1051,8 +1051,10 @@ input[type=range].mc__slider::-moz-range-thumb{
 .card,.qc,.step4,.why--cards li,.dcard,.mc__out,.mc__cost{border-radius:var(--card-r) !important}
 
 /* section rhythm */
+.hero{padding-top:clamp(20px,3vw,40px) !important}
+.hero__tool{margin-top:clamp(24px,3vw,36px) !important}
 .sec{padding-top:var(--sec-y) !important;padding-bottom:var(--sec-y) !important}
-.sec__head{margin-bottom:32px !important}
+.sec__head{margin-bottom:24px !important}
 
 /* symmetry: centered headers, centered single-column boxes */
 .statement,.sec__head,.calc__head,.whyhead__copy{text-align:center}
@@ -1132,7 +1134,6 @@ input[type=range].mc__slider::-moz-range-thumb{
   <div class="wrap">
 
     <div class="statement">
-      <span class="lab statement__eyebrow">Check a Price</span>
       <h1>HVAC pricing has been a closed book. We're opening it.</h1>
       <div class="statement__close">
         <p>Real costs. Real margins. No misleading market comps or lead-generated estimates.
@@ -1318,7 +1319,6 @@ input[type=range].mc__slider::-moz-range-thumb{
 <section class="sec sec--ink" id="check">
   <div class="wrap">
     <div class="sec__head">
-      <span class="lab">Already have a quote?</span>
       <h2 class="sechead">Check it against our suggested price.</h2>
       <p>Start by responding to your contractor with your
          <b class="accent">Open Book AC Decoder Price</b>. If they won't move, upload the quote and
@@ -1480,7 +1480,6 @@ input[type=range].mc__slider::-moz-range-thumb{
   <div class="wrap">
     <div class="whyhead">
       <div class="whyhead__copy">
-        <span class="lab">How do we know?</span>
         <h2 class="sechead">We were in the business.</h2>
         <p class="whyintro">Our founder worked in private equity, owned an HVAC company, and sold it
            to the very industry we're talking about.</p>
