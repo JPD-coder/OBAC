@@ -936,6 +936,8 @@ input[type=range].mc__slider::-moz-range-thumb{
 .hero__tool .calc__title{text-align:left;white-space:normal;margin-bottom:6px}
 .calc__intro{margin:0 0 22px;font-size:16px;color:#9CA8B8}
 .dec2{display:grid;gap:22px}
+.decode{display:flex;justify-content:center;margin-top:26px}
+.decode[hidden]{display:none}
 .dec2__panel,.dec2__fields{min-width:0}
 .dec2 .pg__grid{margin-top:0}
 @media(min-width:900px){
@@ -1135,7 +1137,6 @@ input[type=range].mc__slider::-moz-range-thumb{
             <div class="f">
               <label for="pgZip">Zip Code</label>
               <input class="num-in" id="pgZip" type="text" inputmode="numeric" maxlength="5" placeholder="Insert" autocomplete="off">
-              <small id="pgZipEcho"></small>
             </div>
             <div class="f" id="pgBtuWrap" style="display:none">
               <label for="pgBtu">Furnace output (BTU)</label>
@@ -1203,6 +1204,9 @@ input[type=range].mc__slider::-moz-range-thumb{
           </details>
         </div>
 
+        </div>
+        <div class="decode" id="pgDecodeRow" hidden>
+          <button class="btn btn--yellow btn--big" id="pgDecode" type="button">Decode Price</button>
         </div>
       </div>
     </div>
@@ -3963,19 +3967,21 @@ renderPhotos(); renderQuoteDoc();
     placeFairLabel(fp0);
   }
 
+  /* The price waits for Decode Price. Filling the five answers and the zip
+     shows the button; changing any answer afterwards clears the price and
+     shows it again, so the box never holds a number for a different job. */
   function recost(){
     el('pgZip').classList.toggle('needs', val('pgZip').length !== 5);
-    // The script is written only when they ask for it, so changing a spec
-    // can never leave a stale script sitting under the price.
-    el('pgScriptBox').hidden = true;
-    el('pgScript').textContent = '';
-    if (!ready()){
-      R = null;
-      idle(); return;
-    }
+    R = null; idle();
+    el('pgDecodeRow').hidden = !ready();
+  }
+  el('pgDecode').addEventListener('click', function(){
+    if (!ready()) return;
     R = E.estimate(decoderJob());
     draw();
-  }
+    el('pgDecodeRow').hidden = true;
+    el('decoder').scrollIntoView({ behavior:'smooth', block:'start' });
+  });
 
   el('pgRespond').addEventListener('click', function(){
     var box = el('pgScriptBox');
@@ -4432,15 +4438,7 @@ function renderCompare(r, amt){
 }
 
 // Tell them what their zip actually bought as soon as it is complete.
-el('pgZip').addEventListener('input', function(){
-  var s = el('pgZipEcho');
-  if (this.value.length === 5){
-    var g = E.lookupGeo(this.value);
-    this.classList.remove('needs'); s.className = '';
-    s.textContent = g.label + ' \u2014 sales tax ' + (g.taxRate*100).toFixed(2) +
-                    '%, permit about ' + fmt(g.permitBase) + '.';
-  } else s.textContent = '';
-});
+el('pgZip').addEventListener('input', function(){ if (this.value.length === 5) this.classList.remove('needs'); });
 
 
 /* ============================================================ MISC */
