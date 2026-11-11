@@ -1078,6 +1078,11 @@ input[type=range].mc__slider::-moz-range-thumb{
 #check .drop .drop__count,#dispatch .drop .drop__count{grid-area:s;margin:0 !important;white-space:nowrap;justify-self:start}
 #check .drop:has(.drop__count.on) .drop__sub,#dispatch .drop:has(.drop__count.on) .drop__sub{display:none}
 @media(max-width:350px){.drop__hint{display:none}}
+/* step cards: the number and its title share the first line */
+.step4{display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:8px;align-items:center;align-content:start;padding:18px 20px !important}
+.step4 .step4__n{width:30px;height:30px;font-size:14px}
+.step4 h3{margin:0 !important}
+.step4 p{grid-column:1 / -1;margin:0 !important}
 /* Why Trust Us: header photo and copy side by side, centered as a pair */
 .whyhead{max-width:var(--col);margin-left:auto !important;margin-right:auto !important;align-items:center;justify-content:space-between}
 .whyhead__copy{text-align:left}
