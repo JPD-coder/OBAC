@@ -903,6 +903,13 @@ input[type=range].mc__slider::-moz-range-thumb{
 .foot a{color:#8D99A8;text-decoration:none}
 .foot a:hover{color:var(--white)}
 .foot__legal{border-top:1px solid #39424F;padding-top:22px;font-size:12.5px;line-height:1.65;color:#6C7787}
+.legal{margin:0 0 12px}
+.legal summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:8px;font:600 13px/1.4 var(--body);color:#A7B2C1;padding:4px 0}
+.legal summary::-webkit-details-marker{display:none}
+.legal summary::after{content:"+";font:700 15px/1 var(--mono);color:var(--yellow)}
+.legal[open] summary::after{content:"\2212"}
+.legal summary:hover{color:#fff}
+.legal p{margin:10px 0 0 !important}
 .foot__logo{display:flex;align-items:center;gap:9px;margin-bottom:0;color:var(--white)}
 .foot__logo svg{width:26px;height:26px}
 .foot__logo b{font:800 18px/1 var(--display);letter-spacing:-.028em}
@@ -1563,25 +1570,28 @@ rate,,,,,,,overheadRate,0.05"></textarea>
       </div>
       <div class="foot__links">
         <div><h4>Product</h4><ul><li><a href="#decoder">Check a Price</a></li><li><a href="#check">Check a Quote</a></li><li><a href="#dispatch">Find a Contractor</a></li></ul></div>
-        <div><h4>Company</h4><ul><li><a href="#how">Why Trust Us</a></li></ul></div>
+        <div><h4>Company</h4><ul><li><a href="#how">Why Trust Us</a></li><li><a href="#legal">Disclaimers and Legal</a></li></ul></div>
       </div>
     </div>
     <div class="foot__legal">
-      <p style="margin:0 0 8px">
-        Estimates are informational and generated from local, region, and national cost data. They are not a quote,
-        a bid, or an offer to perform work. Open Book AC is not a licensed contractor and does not
-        install, service, or warrant equipment. Always confirm licensing, insurance, and permitting with introduced contractor.
-        Estimates may be incomplete or inaccurate, and site conditions can change what a job costs; you are responsible for
-        verifying any figure before acting on it, and Open Book AC accepts no liability for decisions made from it.
-      </p>
-      <p style="margin:0 0 8px">
-        By submitting a quote, photos, or your contact details you agree that Open Book AC may store and process them to
-        prepare your estimate and, if you request an introduction, share the job details and photos with contractors in
-        its network. Your name, phone, and email are released only to a contractor who accepts the job. We do not sell
-        your personal information. Upload only documents you have the right to share, and do not include information
-        about other people. You may ask us to delete your data at any time.
-        <!-- TODO before launch: name the contact address for deletion requests here. -->
-      </p>
+      <details class="legal" id="legal">
+        <summary>Disclaimers and Legal</summary>
+        <p style="margin:0 0 8px">
+          Estimates are informational and generated from local, region, and national cost data. They are not a quote,
+          a bid, or an offer to perform work. Open Book AC is not a licensed contractor and does not
+          install, service, or warrant equipment. Always confirm licensing, insurance, and permitting with introduced contractor.
+          Estimates may be incomplete or inaccurate, and site conditions can change what a job costs; you are responsible for
+          verifying any figure before acting on it, and Open Book AC accepts no liability for decisions made from it.
+        </p>
+        <p style="margin:0 0 8px">
+          By submitting a quote, photos, or your contact details you agree that Open Book AC may store and process them to
+          prepare your estimate and, if you request an introduction, share the job details and photos with contractors in
+          its network. Your name, phone, and email are released only to a contractor who accepts the job. We do not sell
+          your personal information. Upload only documents you have the right to share, and do not include information
+          about other people. You may ask us to delete your data at any time.
+          <!-- TODO before launch: name the contact address for deletion requests here. -->
+        </p>
+      </details>
       <p style="margin:0">
         © 2026 Open Book AC
       </p>
@@ -4806,6 +4816,7 @@ el('pbFile').addEventListener('change', function(){
     var id = a.getAttribute('href').slice(1), t = id && document.getElementById(id);
     if (!t || id === 'admin') return;
     e.preventDefault();
+    if (t.tagName === 'DETAILS') t.open = true;
     t.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 })();
